@@ -3,13 +3,15 @@ package router
 import (
 	"just-shopping-around-server/internal/handler"
 
-	"github.com/gorilla/mux"
+	"github.com/labstack/echo/v4"
 )
 
  
 
-func CreateRouter() *mux.Router{
-	r := mux.NewRouter()
-	r.HandleFunc("/api/news", handler.GetNews).Methods("GET")
-	return r
+func CreateRouter() *echo.Echo{
+
+	e := echo.New()
+	e.GET("/news",handler.GetNews)
+	e.POST("/auth", handler.Auth )
+	return e
 }
