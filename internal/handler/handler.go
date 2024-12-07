@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"just-shopping-around-server/internal/model"
 	"log"
 	"net/http"
@@ -27,23 +28,36 @@ func GetNews(c echo.Context) error{
 	if apiKey == "" {
 		log.Fatal("API_KEY is not set")
 	}
+
+	apiURL := os.Getenv("API_URL")
+
+	if apiURL == "" {
+		log.Fatal("API_URL is not set")
+	}
+
 	
-	resp, err := http.Get(fmt.Sprintf("https://newsapi.org/v2/everything?q=groceries&sortBy=publishedAt&apiKey=%s", apiKey))
+	
+	resp, err := http.Get(fmt.Sprintf("%s/v2/everything?q=groceries&sortBy=publishedAt&apiKey=%s",apiURL, apiKey))
 		if  err != nil {
 			return err	
 		}
 	defer resp.Body.Close()
-	
-	var newsFeed []model.NewsAPIResponse
-	
-	if err := json.NewDecoder(resp.Body).Decode(&newsFeed); err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to parse news API response",
-		})
+
+	body, err := io.ReadAll(resp.Body);if err != nil {
+		return err
 	}
+
+	var newsApiResponse model.NewsAPIResponse
+	
+	err = json.Unmarshal(body, &newsApiResponse )
+
+	if err != nil {
+		return err
+	}
+
 	
 	
-	return c.JSON(http.StatusOK, newsFeed)
+	return c.JSON(http.StatusOK, newsApiResponse )
 }
 
 func Auth(c echo.Context)error{

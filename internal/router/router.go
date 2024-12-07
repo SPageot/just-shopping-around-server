@@ -9,7 +9,6 @@ import (
  
 
 func CreateRouter() *echo.Echo{
-
 	e := echo.New()
 	e.GET("/news",handler.GetNews)
 	e.POST("/auth", handler.Auth )
